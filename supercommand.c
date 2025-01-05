@@ -3,6 +3,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 //File Operation
 void create_or_open_file();
@@ -145,4 +148,129 @@ void delete_file() {
     } else {
         printf("File '%s' deleted successfully.\n", filename);
     }
+}
+
+//Directory operations = Rai
+void create_directory(const char *path) {
+    if (mkdir(path, 0755) == 0) {
+        printf("Directory '%s' created successfully.\n", path);
+    } else {
+        perror("Error creating directory");
+    }
+}
+
+void delete_directory(const char *path) {
+    if (rmdir(path) == 0) {
+        printf("Directory '%s' deleted successfully.\n", path);
+    } else {
+        perror("Error deleting directory");
+    }
+}
+
+void print_current_directory() {
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("Current working directory: %s\n", cwd);
+    } else {
+        perror("Error getting current working directory");
+    }
+}
+
+void list_directory_contents(const char *path) {
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir(path);
+    if (dir == NULL) {
+        perror("Error opening directory");
+        return;
+    }
+
+    printf("Contents of directory '%s':\n", path);
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc > 1 && strcmp(argv[1], "-m") == 0) {
+        int mode = atoi(argv[2]);
+
+        if (mode == 2) { // Directory operations
+            int operation = atoi(argv[3]);
+            const char *path = (argc > 4) ? argv[4] : ".";
+
+            switch (operation) {
+                case 1: // Create directory
+                    create_directory(path);
+                    break;
+                case 2: // Delete directory
+                    delete_directory(path);
+                    break;
+                case 3: // Print current directory
+                    print_current_directory();
+                    break;
+                case 4: // List directory contents
+                    list_directory_contents(path);
+                    break;
+                default:
+                    printf("Invalid operation for directory mode.\n");
+            }
+        } else {
+            printf("Invalid mode. Use mode 2 for directory operations.\n");
+        }
+
+        return 0;
+    }
+
+    int choice;
+    char path[1024];
+
+    do {
+        printf("\nDirectory Operations:\n");
+        printf("1. Create a directory\n");
+        printf("2. Delete a directory\n");
+        printf("3. Print the current working directory\n");
+        printf("4. List directory contents\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // To consume the newline character
+
+        switch (choice) {
+            case 1:
+                printf("Enter directory path to create: ");
+                scanf("%1023s", path);
+                create_directory(path);
+                break;
+            case 2:
+                printf("Enter directory path to delete: ");
+                scanf("%1023s", path);
+                delete_directory(path);
+                break;
+            case 3:
+                print_current_directory();
+                break;
+            case 4:
+                printf("Enter directory path to list (or press Enter for current directory): ");
+                fgets(path, sizeof(path), stdin);
+                if (path[strlen(path) - 1] == '\n') {
+                    path[strlen(path) - 1] = '\0';
+                }
+                if (strlen(path) == 0) {
+                    strcpy(path, ".");
+                }
+                list_directory_contents(path);
+                break;
+            case 5:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 5);
+
+    return 0;
 }
