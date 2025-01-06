@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
             int operation = atoi(argv[2]);
             int mode = atoi(argv[3]);
             char *filename = argv[4];
-        }
+        
         switch (operation) {
             case 1:  // File operations
                 switch (mode) {
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
                         createOpenFile(filename);
                         break;
                     case 2:  // Change file permissions
-                    if (argc >= 5) {
+                    if (argc >= 6) {
                         changeFilePerm(filename, atoi(argv[5]));
                     } else {
                         printf("Error missing permission argument.\n");
@@ -92,8 +92,10 @@ int main(int argc, char *argv[]) {
             default:
                 printf("Invalid operation mode.\n");
         }
-        return 0;  // Exit after executing command-line task
+    } else {
+        printf("Usage: ./supercommand -m <operation> <mode> <filename> [permissions]\n");
     }
+    return 0;  // Exit after executing command-line task
 
     // Original menu-based execution
     int choice;
