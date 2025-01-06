@@ -9,70 +9,38 @@
 #include <time.h>
 #include <termios.h>
 
-//for File Operations
-void getDirectoryName(char *fullPath, size_t size) {
-    char dirName[256], filename[256];
-
-    // Prompt for directory name and filename
-    printf("Enter directory name: ");
-    fgets(dirName, sizeof(dirName), stdin);
-    dirName[strcspn(dirName, "\n")] = 0;  // Remove newline character
-
-    printf("Enter filename: ");
-    fgets(filename, sizeof(filename), stdin);
-    filename[strcspn(filename, "\n")] = 0;  // Remove newline character
-
-    // Combine directory name and filename to create full path
-    snprintf(fullPath, size, "%s/%s", dirName, filename);
-}
-
-void createOpenFile() {
-    char fullPath[512];
-
-    // Check if file exists
-    int fd = open(fullPath, O_RDWR | O_CREAT, 0644);  // Open file with read/write and create if doesn't exist
+void createOpenFile(const char *path) {
+    int fd = open(path, O_CREAT | O_WRONLY, 0644);
     if (fd != -1) {
-        // Check if file is newly created or just opened
-        if (access(fullPath, F_OK) == 0) {
-            printf("File '%s' opened successfully.\n", fullPath);  // File exists, just opened
-        } else {
-            printf("File '%s' created successfully.\n", fullPath);  // New file created
-        }
-        close(fd);  // Close the file descriptor
+        printf("File '%s' created successfully.\n", path);
+        close(fd);
     } else {
-        perror("Error creating or opening file");
+        perror("Error creating file");
     }
 }
 
-// Delete file function
-void deleteFile() {
-    char fullPath[512];
-    if (unlink(fullPath) == 0) {
-        printf("File '%s' deleted successfully.\n", fullPath);
+void deleteFile(const char *path) {
+    if (unlink(path) == 0) {
+        printf("File '%s' deleted successfully.\n", path);
     } else {
         perror("Error deleting file");
     }
 }
 
-// Change file permissions function
-void changeFilePerm() {
-    char fullPath[512];
-    mode_t mode;
-    if (chmod(fullPath, mode) == 0) {
-        printf("Permissions for '%s' changed successfully.\n", fullPath);
+void changeFilePerm(const char *path, mode_t mode) {
+    if (chmod(path, mode) == 0) {
+        printf("Permissions for '%s' changed successfully.\n", path);
     } else {
         perror("Error changing file permissions");
     }
 }
 
-// Read file function
-void readFile() {
-    char fullPath[512];
+void readFile(const char *path) {
     char buffer[1024];
-    int fd = open(fullPath, O_RDONLY);
+    int fd = open(path, O_RDONLY);
     if (fd != -1) {
         ssize_t bytes_read;
-        printf("Contents of file '%s':\n", fullPath);
+        printf("Contents of file '%s':\n", path);
         while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
             buffer[bytes_read] = '\0';
             printf("%s", buffer);
@@ -83,14 +51,11 @@ void readFile() {
     }
 }
 
-// Write to file function
-void writeFile() {
-    char fullPath[512];
-    char content[1024];
-    int fd = open(fullPath, O_WRONLY | O_APPEND);
+void writeFile(const char *path, const char *content) {
+    int fd = open(path, O_WRONLY | O_APPEND);
     if (fd != -1) {
         if (write(fd, content, strlen(content)) != -1) {
-            printf("Content written to '%s' successfully.\n", fullPath);
+            printf("Content written to '%s' successfully.\n", path);
         } else {
             perror("Error writing to file");
         }
@@ -100,7 +65,6 @@ void writeFile() {
     }
 }
 
-//for Directory Operations
 void create_directory(const char *path) {
     if (mkdir(path, 0755) == 0) {
         printf("Directory '%s' created successfully.\n", path);
@@ -187,14 +151,10 @@ void keylogger(char *logFile) {
 }
 
 int main(int argc, char *argv[]) {
-
-    char *filename = NULL;
-
     if (argc > 1 && strcmp(argv[1], "-m") == 0) {
-        int opMode = atoi(argv[2]);
-        filename = argv[3];  
+        int mode = atoi(argv[2]);
 
-        if (opMode == 1) { // File operations
+        if (mode == 1) { // File operations
             int operation = atoi(argv[3]);
             const char *path = (argc > 4) ? argv[4] : "";
 
@@ -226,7 +186,7 @@ int main(int argc, char *argv[]) {
                 default:
                     printf("Invalid operation for file mode.\n");
             }
-        } else if (opMode == 2) { // Directory operations
+        } else if (mode == 2) { // Directory operations
             int operation = atoi(argv[3]);
             const char *path = (argc > 4) ? argv[4] : ".";
 
@@ -246,21 +206,26 @@ int main(int argc, char *argv[]) {
                 default:
                     printf("Invalid operation for directory mode.\n");
             }
-        } else if (opMode == 3) { // Keylogger operations
-            if (argc == 4) { // Only need 4 arguments for keylogger (operation + filename)
-                    keylogger(filename);
-                } else {
-                    printf("Invalid mode. Usage: ./supercommand -m 3 <filename>\n");
-                }
+        } else if (mode == 3) { // Keylogger operations
+            int operation = atoi(argv[3]);
+            char *logfile = (argc > 4) ? argv[4] : "keylog.txt";
+
+            if (operation == 1) {
+                keylogger(logfile);
+            } else {
+                printf("Invalid operation for keylogger mode.\n");
+            }
+        } else {
+            printf("Invalid mode.\n");
+        }
 
         return 0;
     }
 
     int choice;
-    char path[256], filename[256];
+    char path[1024];
     char content[1024];
-    char fullPath[512];
-    mode_t fileMode;
+    mode_t mode;
 
     do {
         printf("\nOperations:\n");
@@ -272,113 +237,116 @@ int main(int argc, char *argv[]) {
         scanf("%d", &choice);
 
         switch (choice) {
-            case 1:
-                printf("\nFile Operations:\n");
-                printf("1. Create a file\n");
-                printf("2. Delete a file\n");
-                printf("3. Read a file\n");
-                printf("4. Write to a file\n");
-                printf("5. Change file permissions\n");
-                printf("Enter your choice: ");
-                int file_choice;
-                scanf("%d", &file_choice);
-                getchar();
-                switch (file_choice) {
-                    case 1:
-                        // Prompt for directory path and filename
-                        printf("Enter directory path: ");
-                        fgets(path, sizeof(path), stdin);
-                        path[strcspn(path, "\n")] = 0;  // Remove the newline character
+        case 1: // File Operations
+            printf("\nFile Operations:\n");
+            printf("1. Create a file\n");
+            printf("2. Delete a file\n");
+            printf("3. Read a file\n");
+            printf("4. Write to a file\n");
+            printf("5. Change file permissions\n");
+            printf("Enter your choice: ");
+            int file_choice;
+            scanf("%d", &file_choice);
+            getchar(); // Consume newline
+            switch (file_choice) {
+                case 1: // Create a file
+                    printf("Enter the file path to create: ");
+                    scanf("%s", path);
+                    createOpenFile(path);
+                    break;
+                case 2: // Delete a file
+                    printf("Enter the file path to delete: ");
+                    scanf("%s", path);
+                    deleteFile(path);
+                    break;
+                case 3: // Read a file
+                    printf("Enter the file path to read: ");
+                    scanf("%s", path);
+                    readFile(path);
+                    break;
+                case 4: // Write to a file
+                    printf("Enter the file path to write to: ");
+                    scanf("%s", path);
+                    getchar(); // Consume newline
+                    printf("Enter the content to write: ");
+                    fgets(content, sizeof(content), stdin);
+                    strtok(content, "\n"); // Remove trailing newline
+                    writeFile(path, content);
+                    break;
+                case 5: // Change file permissions
+                    printf("Enter the file path: ");
+                    scanf("%s", path);
+                    printf("Enter the new permissions (octal, e.g., 0644): ");
+                    scanf("%o", &mode);
+                    changeFilePerm(path, mode);
+                    break;
+                default:
+                    printf("Invalid file operation choice.\n");
+            }
+            break;
 
-                        printf("Enter filename: ");
-                        fgets(filename, sizeof(filename), stdin);
-                        filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
+        case 2: // Directory Operations
+            printf("\nDirectory Operations:\n");
+            printf("1. Create a directory\n");
+            printf("2. Delete a directory\n");
+            printf("3. Print current directory\n");
+            printf("4. List directory contents\n");
+            printf("Enter your choice: ");
+            int dir_choice;
+            scanf("%d", &dir_choice);
+            getchar(); // Consume newline
+            switch (dir_choice) {
+                case 1: // Create a directory
+                    printf("Enter the directory path to create: ");
+                    scanf("%s", path);
+                    create_directory(path);
+                    break;
+                case 2: // Delete a directory
+                    printf("Enter the directory path to delete: ");
+                    scanf("%s", path);
+                    delete_directory(path);
+                    break;
+                case 3: // Print current directory
+                    print_current_directory();
+                    break;
+                case 4: // List directory contents
+                    printf("Enter the directory path: ");
+                    scanf("%s", path);
+                    list_directory_contents(path);
+                    break;
+                default:
+                    printf("Invalid directory operation choice.\n");
+            }
+            break;
 
-                        // Combine path and filename to create full path
-                        if (strlen(path) + strlen(filename) + 1 < sizeof(fullPath)) {
-                            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
-                        } else {
-                            printf("Error: Path and filename are too long.\n");
-                        }
-                        createOpenFile(path);
-                        break;
-                    case 2:
-                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-                        deleteFile(path);
-                        break;
-                    case 3:
-                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-                        readFile(path);
-                        break;
-                    case 4:
-                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-                        printf("Enter content to write to the file: ");
-                        fgets(content, sizeof(content), stdin);
-                        content[strcspn(content, "\n")] = 0;  // Remove newline character
-                        writeFile(path, content);
-                        break;
-                    case 5:
-                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-                        printf("Enter permissions (e.g., 0644): ");
-                        scanf("%o", &fileMode);
-                        getchar();  // To consume the newline character after entering the permissions
-                        changeFilePerm(path, fileMode);
-                        break;
-                    default:
-                        printf("Invalid choice.\n");
+        case 3: // Keylogger Operations
+            printf("\nKeylogger Operations:\n");
+            printf("1. Start keylogger\n");
+            printf("Enter your choice: ");
+            int keylogger_choice;
+            scanf("%d", &keylogger_choice);
+            getchar(); // Consume newline
+            if (keylogger_choice == 1) {
+                printf("Enter the log file name (or press Enter for default 'keylog.txt'): ");
+                fgets(path, sizeof(path), stdin);
+                strtok(path, "\n"); // Remove trailing newline
+                if (strlen(path) == 0) {
+                    keylogger(NULL); // Use default log file
+                } else {
+                    keylogger(path);
                 }
-                break;
-            case 2:
-                printf("\nDirectory Operations:\n");
-                printf("1. Create a directory\n");
-                printf("2. Delete a directory\n");
-                printf("3. Print current working directory\n");
-                printf("4. List directory contents\n");
-                printf("Enter your choice: ");
-                int dir_choice;
-                scanf("%d", &dir_choice);
-                getchar();
-                switch (dir_choice) {
-                    case 1:
-                        printf("Enter directory path to create: ");
-                        scanf("%1023s", path);
-                        create_directory(path);
-                        break;
-                    case 2:
-                        printf("Enter directory path to delete: ");
-                        scanf("%1023s", path);
-                        delete_directory(path);
-                        break;
-                    case 3:
-                        print_current_directory();
-                        break;
-                    case 4:
-                        printf("Enter directory path to list contents (or leave empty for current directory): ");
-                        getchar();
-                        fgets(path, sizeof(path), stdin);
-                        if (path[strlen(path) - 1] == '\n') {
-                            path[strlen(path) - 1] = '\0';
-                        }
-                        if (strlen(path) == 0) {
-                            strcpy(path, ".");
-                        }
-                        list_directory_contents(path);
-                        break;
-                    default:
-                        printf("Invalid choice.\n");
-                }
-                break;
-            case 3:
-                keylogger(NULL);
-                break;
-            case 4:
-                printf("Exiting program.\n");
-                break;
-            default:
-                printf("Invalid choice.\n");
-        }
-    } while (choice != 4);
+            } else {
+                printf("Invalid keylogger operation choice.\n");
+            }
+            break;
 
-    return 0;
-}
+        case 4: // Exit
+            printf("Exiting the program. Goodbye!\n");
+            exit(0);
+            break;
+
+        default:
+            printf("Invalid choice. Please try again.\n");
+    }
+    }
 }
