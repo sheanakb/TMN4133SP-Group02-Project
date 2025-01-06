@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-}
+
 
 // --- FILE OPERATIONS ---
 void createOpenFile(char *filename) {
