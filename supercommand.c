@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
     int choice;
     char path[1024], filename[256];
     char content[1024];
-    char fullPath[512];
+    char fullPath[1024];
     mode_t fileMode;
 
     do {
