@@ -26,6 +26,10 @@ void list_directory_contents(char *path);
 void keylogger(char *logFile);
 
 int main(int argc, char *argv[]) {
+    int operation = 0;
+    int mode = 0;
+    char *filename = NULL;
+
     if (argc > 1) {
         // Command line operation
         if (strcmp(argv[1], "-m") == 0 && argc >= 4) {
