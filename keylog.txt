@@ -11,3 +11,6 @@ hello world. my name is sheana. i this is a test for key logger function.Sessio
 
 
 Dory is Raiyani's cat and Kambing is Rofinna's cat
+Session started at: Mon Jan  6 21:53:09 2025
+
+hello world. this is me testing the keylogger. hopefully it works. 

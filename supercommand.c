@@ -8,38 +8,93 @@
 #include <fcntl.h>
 #include <time.h>
 
-void create_file(const char *path) {
-    int fd = open(path, O_CREAT | O_WRONLY, 0644);
+//for File Operations
+void getDirectoryName(char *fullPath, size_t size) {
+    char dirName[256], filename[256];
+
+    // Prompt for directory name and filename
+    printf("Enter directory name: ");
+    fgets(dirName, sizeof(dirName), stdin);
+    dirName[strcspn(dirName, "\n")] = 0;  // Remove newline character
+
+    printf("Enter filename: ");
+    fgets(filename, sizeof(filename), stdin);
+    filename[strcspn(filename, "\n")] = 0;  // Remove newline character
+
+    // Combine directory name and filename to create full path
+    snprintf(fullPath, size, "%s/%s", dirName, filename);
+}
+
+void createOpenFile() {
+    char path[256], filename[256];
+    char fullPath[512];
+
+    // Prompt for directory path and filename
+    printf("Enter directory path: ");
+    fgets(path, sizeof(path), stdin);
+    path[strcspn(path, "\n")] = 0;  // Remove the newline character
+
+    printf("Enter filename: ");
+    fgets(filename, sizeof(filename), stdin);
+    filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
+
+    // Combine path and filename to create full path
+    snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
+
+    // Check if file exists
+    int fd = open(fullPath, O_RDWR | O_CREAT, 0644);  // Open file with read/write and create if doesn't exist
     if (fd != -1) {
-        printf("File '%s' created successfully.\n", path);
-        close(fd);
+        // Check if file is newly created or just opened
+        if (access(fullPath, F_OK) == 0) {
+            printf("File '%s' opened successfully.\n", fullPath);  // File exists, just opened
+        } else {
+            printf("File '%s' created successfully.\n", fullPath);  // New file created
+        }
+        close(fd);  // Close the file descriptor
     } else {
-        perror("Error creating file");
+        perror("Error creating or opening file");
     }
 }
 
-void delete_file(const char *path) {
-    if (unlink(path) == 0) {
-        printf("File '%s' deleted successfully.\n", path);
+// Delete file function
+void deleteFile() {
+    char fullPath[512];
+    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+
+    if (unlink(fullPath) == 0) {
+        printf("File '%s' deleted successfully.\n", fullPath);
     } else {
         perror("Error deleting file");
     }
 }
 
-void change_file_permissions(const char *path, mode_t mode) {
-    if (chmod(path, mode) == 0) {
-        printf("Permissions for '%s' changed successfully.\n", path);
+// Change file permissions function
+void changeFilePerm() {
+    char fullPath[512];
+    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+
+    mode_t mode;
+    printf("Enter permissions (e.g., 0644): ");
+    scanf("%o", &mode);
+    getchar();  // To consume the newline character after entering the permissions
+
+    if (chmod(fullPath, mode) == 0) {
+        printf("Permissions for '%s' changed successfully.\n", fullPath);
     } else {
         perror("Error changing file permissions");
     }
 }
 
-void read_file(const char *path) {
+// Read file function
+void readFile() {
+    char fullPath[512];
+    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+
     char buffer[1024];
-    int fd = open(path, O_RDONLY);
+    int fd = open(fullPath, O_RDONLY);
     if (fd != -1) {
         ssize_t bytes_read;
-        printf("Contents of file '%s':\n", path);
+        printf("Contents of file '%s':\n", fullPath);
         while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
             buffer[bytes_read] = '\0';
             printf("%s", buffer);
@@ -50,11 +105,20 @@ void read_file(const char *path) {
     }
 }
 
-void write_to_file(const char *path, const char *content) {
-    int fd = open(path, O_WRONLY | O_APPEND);
+// Write to file function
+void writeFile() {
+    char fullPath[512];
+    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+
+    char content[1024];
+    printf("Enter content to write to the file: ");
+    fgets(content, sizeof(content), stdin);
+    content[strcspn(content, "\n")] = 0;  // Remove newline character
+
+    int fd = open(fullPath, O_WRONLY | O_APPEND);
     if (fd != -1) {
         if (write(fd, content, strlen(content)) != -1) {
-            printf("Content written to '%s' successfully.\n", path);
+            printf("Content written to '%s' successfully.\n", fullPath);
         } else {
             perror("Error writing to file");
         }
@@ -140,17 +204,17 @@ int main(int argc, char *argv[]) {
 
             switch (operation) {
                 case 1: // Create file
-                    create_file(path);
+                    createOpenFile(path);
                     break;
                 case 2: // Delete file
-                    delete_file(path);
+                    deleteFile(path);
                     break;
                 case 3: // Read file
-                    read_file(path);
+                    readFile(path);
                     break;
                 case 4: // Write to file
                     if (argc > 5) {
-                        write_to_file(path, argv[5]);
+                        writeFile(path, argv[5]);
                     } else {
                         printf("Content to write is missing.\n");
                     }
@@ -158,7 +222,7 @@ int main(int argc, char *argv[]) {
                 case 5: // Change file permissions
                     if (argc > 5) {
                         mode_t mode = strtol(argv[5], NULL, 8);
-                        change_file_permissions(path, mode);
+                        changeFilePerm(path, mode);
                     } else {
                         printf("Permissions mode is missing.\n");
                     }
@@ -232,17 +296,17 @@ int main(int argc, char *argv[]) {
                     case 1:
                         printf("Enter file path to create: ");
                         scanf("%1023s", path);
-                        create_file(path);
+                        createOpenFile(path);
                         break;
                     case 2:
                         printf("Enter file path to delete: ");
                         scanf("%1023s", path);
-                        delete_file(path);
+                        deleteFile(path);
                         break;
                     case 3:
                         printf("Enter file path to read: ");
                         scanf("%1023s", path);
-                        read_file(path);
+                        readFile(path);
                         break;
                     case 4:
                         printf("Enter file path to write to: ");
@@ -253,14 +317,14 @@ int main(int argc, char *argv[]) {
                         if (content[strlen(content) - 1] == '\n') {
                             content[strlen(content) - 1] = '\0';
                         }
-                        write_to_file(path, content);
+                        writeFile(path, content);
                         break;
                     case 5:
                         printf("Enter file path to change permissions: ");
                         scanf("%1023s", path);
                         printf("Enter new permissions mode (octal): ");
                         scanf("%o", &mode);
-                        change_file_permissions(path, mode);
+                        changeFilePerm(path, mode);
                         break;
                     default:
                         printf("Invalid choice.\n");
