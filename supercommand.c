@@ -10,20 +10,20 @@
 #include <termios.h>
 
 // File Operation Functions
-void createOpenFile(const char *filename);
-void changeFilePerm(const char *filename, int permissions);
-void readFile(const char *filename);
-void writeFile(const char *filename);
-void deleteFile(const char *filename);
+void createOpenFile(char *filename);
+void changeFilePerm(char *filename, int permissions);
+void readFile(char *filename);
+void writeFile(char *filename);
+void deleteFile(char *filename);
 
 // Directory Operation Functions
-void create_directory(const char *path);
-void delete_directory(const char *path);
+void create_directory(char *path);
+void delete_directory(char *path);
 void print_current_directory();
-void list_directory_contents(const char *path);
+void list_directory_contents(char *path);
 
 // Keylogger Function
-void keylogger(const char *logFile);
+void keylogger(char *logFile);
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
 }
 
 // --- FILE OPERATIONS ---
-void createOpenFile(const char *filename) {
+void createOpenFile(char *filename) {
     char file[256];
     if (!filename) {
         printf("Enter the file name to create/open: ");
@@ -199,7 +199,7 @@ void createOpenFile(const char *filename) {
     }
 }
 
-void changeFilePerm(const char *filename, int permissions) {
+void changeFilePerm(char *filename, int permissions) {
     if (!filename) {
         printf("Enter the file name to change permissions: ");
         scanf("%s", filename);
@@ -214,7 +214,7 @@ void changeFilePerm(const char *filename, int permissions) {
     }
 }
 
-void readFile(const char *filename) {
+void readFile(char *filename) {
     if (!filename) {
         printf("Enter the file name to read: ");
         scanf("%s", filename);
@@ -242,7 +242,7 @@ void readFile(const char *filename) {
     close(fd);
 }
 
-void writeFile(const char *filename) {
+void writeFile(char *filename) {
     if (!filename) {
         printf("Enter the file name to write to: ");
         scanf("%s", filename);
@@ -269,7 +269,7 @@ void writeFile(const char *filename) {
     close(fd);
 }
 
-void deleteFile(const char *filename) {
+void deleteFile(char *filename) {
     if (!filename) {
         printf("Enter the file name to delete: ");
         scanf("%s", filename);
@@ -283,7 +283,7 @@ void deleteFile(const char *filename) {
 }
 
 // --- DIRECTORY OPERATIONS ---
-void create_directory(const char *path) {
+void create_directory(char *path) {
     if (!path) {
         printf("Enter directory path to create: ");
         scanf("%s", path);
@@ -296,7 +296,7 @@ void create_directory(const char *path) {
     }
 }
 
-void delete_directory(const char *path) {
+void delete_directory(char *path) {
     if (!path) {
         printf("Enter directory path to delete: ");
         scanf("%s", path);
@@ -318,7 +318,7 @@ void print_current_directory() {
     }
 }
 
-void list_directory_contents(const char *path) {
+void list_directory_contents(char *path) {
     if (!path) {
         printf("Enter directory path to list contents (or '.' for current directory): ");
         scanf("%s", path);
@@ -339,7 +339,7 @@ void list_directory_contents(const char *path) {
     closedir(dir);
 }
 
-void keylogger(const char *logFile) {
+void keylogger(char *logFile) {
     if (!logFile) {
         logFile = "keylog.txt";
     }
