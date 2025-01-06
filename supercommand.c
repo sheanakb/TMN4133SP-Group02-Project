@@ -191,10 +191,10 @@ int main(int argc, char *argv[]) {
     char *filename = NULL;
 
     if (argc > 1 && strcmp(argv[1], "-m") == 0) {
-        int mode = atoi(argv[2]);
+        int opMode = atoi(argv[2]);
         filename = argv[3];  
 
-        if (mode == 1) { // File operations
+        if (opMode == 1) { // File operations
             int operation = atoi(argv[3]);
             const char *path = (argc > 4) ? argv[4] : "";
 
@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
                 default:
                     printf("Invalid operation for file mode.\n");
             }
-        } else if (mode == 2) { // Directory operations
+        } else if (opMode == 2) { // Directory operations
             int operation = atoi(argv[3]);
             const char *path = (argc > 4) ? argv[4] : ".";
 
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
                 default:
                     printf("Invalid operation for directory mode.\n");
             }
-        } else if (mode == 3) { // Keylogger operations
+        } else if (opMode == 3) { // Keylogger operations
             if (argc == 4) { // Only need 4 arguments for keylogger (operation + filename)
                     keylogger(filename);
                 } else {
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
     char path[1024], filename[256];
     char content[1024];
     char fullPath[512];
-    mode_t mode;
+    mode_t fileMode;
 
     do {
         printf("\nOperations:\n");
@@ -295,7 +295,11 @@ int main(int argc, char *argv[]) {
                         filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
 
                         // Combine path and filename to create full path
-                        snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
+                        if (strlen(path) + strlen(filename) + 1 < sizeof(fullPath)) {
+                            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
+                        } else {
+                            printf("Error: Path and filename are too long.\n");
+                        }
                         createOpenFile(path);
                         break;
                     case 2:
@@ -316,9 +320,9 @@ int main(int argc, char *argv[]) {
                     case 5:
                         getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
                         printf("Enter permissions (e.g., 0644): ");
-                        scanf("%o", &mode);
+                        scanf("%o", &fileMode);
                         getchar();  // To consume the newline character after entering the permissions
-                        changeFilePerm(path, mode);
+                        changeFilePerm(path, fileMode);
                         break;
                     default:
                         printf("Invalid choice.\n");
