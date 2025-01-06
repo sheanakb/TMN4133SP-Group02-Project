@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <time.h>
+#include <termios.h>
 
 //for File Operations
 void getDirectoryName(char *fullPath, size_t size) {
@@ -26,20 +27,7 @@ void getDirectoryName(char *fullPath, size_t size) {
 }
 
 void createOpenFile() {
-    char path[256], filename[256];
     char fullPath[512];
-
-    // Prompt for directory path and filename
-    printf("Enter directory path: ");
-    fgets(path, sizeof(path), stdin);
-    path[strcspn(path, "\n")] = 0;  // Remove the newline character
-
-    printf("Enter filename: ");
-    fgets(filename, sizeof(filename), stdin);
-    filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
-
-    // Combine path and filename to create full path
-    snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
 
     // Check if file exists
     int fd = open(fullPath, O_RDWR | O_CREAT, 0644);  // Open file with read/write and create if doesn't exist
@@ -59,8 +47,6 @@ void createOpenFile() {
 // Delete file function
 void deleteFile() {
     char fullPath[512];
-    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-
     if (unlink(fullPath) == 0) {
         printf("File '%s' deleted successfully.\n", fullPath);
     } else {
@@ -71,13 +57,7 @@ void deleteFile() {
 // Change file permissions function
 void changeFilePerm() {
     char fullPath[512];
-    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-
     mode_t mode;
-    printf("Enter permissions (e.g., 0644): ");
-    scanf("%o", &mode);
-    getchar();  // To consume the newline character after entering the permissions
-
     if (chmod(fullPath, mode) == 0) {
         printf("Permissions for '%s' changed successfully.\n", fullPath);
     } else {
@@ -88,8 +68,6 @@ void changeFilePerm() {
 // Read file function
 void readFile() {
     char fullPath[512];
-    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-
     char buffer[1024];
     int fd = open(fullPath, O_RDONLY);
     if (fd != -1) {
@@ -108,13 +86,7 @@ void readFile() {
 // Write to file function
 void writeFile() {
     char fullPath[512];
-    getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-
     char content[1024];
-    printf("Enter content to write to the file: ");
-    fgets(content, sizeof(content), stdin);
-    content[strcspn(content, "\n")] = 0;  // Remove newline character
-
     int fd = open(fullPath, O_WRONLY | O_APPEND);
     if (fd != -1) {
         if (write(fd, content, strlen(content)) != -1) {
@@ -128,6 +100,7 @@ void writeFile() {
     }
 }
 
+//for Directory Operations
 void create_directory(const char *path) {
     if (mkdir(path, 0755) == 0) {
         printf("Directory '%s' created successfully.\n", path);
@@ -171,27 +144,46 @@ void list_directory_contents(const char *path) {
     closedir(dir);
 }
 
-void start_keylogger(const char *logfile) {
-    pid_t pid = fork();
-    if (pid == 0) {
-        FILE *log = fopen(logfile, "a");
-        if (!log) {
-            perror("Error opening log file");
-            exit(EXIT_FAILURE);
-        }
-
-        time_t now = time(NULL);
-        fprintf(log, "\n--- Keylogger session started at %s---\n", ctime(&now));
-        fclose(log);
-
-        while (1) {
-            sleep(10); 
-        }
-    } else if (pid > 0) {
-        printf("Keylogger started with PID %d. Logging to '%s'.\n", pid, logfile);
-    } else {
-        perror("Error starting keylogger");
+void keylogger(char *logFile) {
+    if (!logFile) {
+        logFile = "keylog.txt";
     }
+
+    printf("Keylogger started. Logging keystrokes to '%s'.\n", logFile);
+    
+    // Open the keylog file
+    int fd = open(logFile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    if (fd < 0) {
+        perror("Failed to open keylog file");
+        return;
+    }
+
+    // Add timestamp
+    time_t now = time(NULL);
+    dprintf(fd, "Session started at: %s\n", ctime(&now));
+
+    // Configure terminal to raw mode for capturing keystrokes
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);  // Disable echo and canonical mode
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    // Log keystrokes
+    char c;
+    while (1) {
+        c = getchar();
+        if (c == 27) {  // ESC key to stop keylogger
+            break;
+        }
+        write(fd, &c, 1);
+    }
+
+    // Restore terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    close(fd);
+
+    printf("Keylogger stopped. Keystrokes saved in '%s'.\n", logFile);
 }
 
 int main(int argc, char *argv[]) {
@@ -267,8 +259,9 @@ int main(int argc, char *argv[]) {
     }
 
     int choice;
-    char path[1024];
+    char path[1024], filename[256];
     char content[1024];
+    char fullPath[512];
     mode_t mode;
 
     do {
@@ -294,18 +287,39 @@ int main(int argc, char *argv[]) {
                 getchar();
                 switch (file_choice) {
                     case 1:
+                        // Prompt for directory path and filename
+                        printf("Enter directory path: ");
+                        fgets(path, sizeof(path), stdin);
+                        path[strcspn(path, "\n")] = 0;  // Remove the newline character
+
+                        printf("Enter filename: ");
+                        fgets(filename, sizeof(filename), stdin);
+                        filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
+
+                        // Combine path and filename to create full path
+                        snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
                         createOpenFile(path);
                         break;
                     case 2:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
                         deleteFile(path);
                         break;
                     case 3:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
                         readFile(path);
                         break;
                     case 4:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+                        printf("Enter content to write to the file: ");
+                        fgets(content, sizeof(content), stdin);
+                        content[strcspn(content, "\n")] = 0;  // Remove newline character
                         writeFile(path, content);
                         break;
                     case 5:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+                        printf("Enter permissions (e.g., 0644): ");
+                        scanf("%o", &mode);
+                        getchar();  // To consume the newline character after entering the permissions
                         changeFilePerm(path, mode);
                         break;
                     default:
