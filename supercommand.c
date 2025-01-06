@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
             const char *logfile = (argc > 4) ? argv[4] : "keylog.txt";
 
             if (operation == 1) {
-                start_keylogger(logfile);
+                keylogger(logfile);
             } else {
                 printf("Invalid operation for keylogger mode.\n");
             }
@@ -367,25 +367,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 3:
-                printf("\nKeylogger Operations:\n");
-                printf("1. Start keylogger\n");
-                printf("Enter your choice: ");
-                int keylogger_choice;
-                scanf("%d", &keylogger_choice);
-                if (keylogger_choice == 1) {
-                    printf("Enter log file path (or leave empty for 'keylog.txt'): ");
-                    getchar();
-                    fgets(path, sizeof(path), stdin);
-                    if (path[strlen(path) - 1] == '\n') {
-                        path[strlen(path) - 1] = '\0';
-                    }
-                    if (strlen(path) == 0) {
-                        strcpy(path, "keylog.txt");
-                    }
-                    start_keylogger(path);
-                } else {
-                    printf("Invalid choice.\n");
-                }
+                keylogger(NULL)
                 break;
             case 4:
                 printf("Exiting program.\n");
