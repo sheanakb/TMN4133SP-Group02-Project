@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <time.h>
+#include <termios.h>
 
 // File Operation Functions
 void createOpenFile();
@@ -261,4 +263,42 @@ void list_directory_contents() {
     }
 
     closedir(dir);
+}
+
+void keylogger() {
+    printf("Keylogger started. Logging keystrokes to 'keylog.txt'.\n");
+    
+    // Open the keylog file
+    int fd = open("keylog.txt", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    if (fd < 0) {
+        perror("Failed to open keylog file");
+        return;
+    }
+
+    // Add timestamp
+    time_t now = time(NULL);
+    dprintf(fd, "Session started at: %s\n", ctime(&now));
+
+    // Configure terminal to raw mode for capturing keystrokes
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);  // Disable echo and canonical mode
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    // Log keystrokes
+    char c;
+    while (1) {
+        c = getchar();
+        if (c == 27) {  // ESC key to stop keylogger
+            break;
+        }
+        write(fd, &c, 1);
+    }
+
+    // Restore terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    close(fd);
+
+    printf("Keylogger stopped. Keystrokes saved in 'keylog.txt'.\n");
 }
