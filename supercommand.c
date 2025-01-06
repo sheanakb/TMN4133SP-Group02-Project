@@ -26,13 +26,13 @@ void list_directory_contents(char *path);
 void keylogger(char *logFile);
 
 int main(int argc, char *argv[]) {
-    int operation = 0;
-    int mode = 0;
+    int operation = -1;
+    int mode = -1;
     char *filename = NULL;
 
     if (argc > 1) {
         // Command line operation
-        if (strcmp(argv[1], "-m") == 0 && argc >= 4) {
+        if (strcmp(argv[1], "-m") == 0 && argc >= 5) {
             int operation = atoi(argv[2]);
             int mode = atoi(argv[3]);
             char *filename = argv[4];
