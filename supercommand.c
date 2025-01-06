@@ -187,8 +187,12 @@ void keylogger(char *logFile) {
 }
 
 int main(int argc, char *argv[]) {
+
+    char *filename = NULL;
+
     if (argc > 1 && strcmp(argv[1], "-m") == 0) {
         int mode = atoi(argv[2]);
+        filename = argv[3];  
 
         if (mode == 1) { // File operations
             int operation = atoi(argv[3]);
@@ -243,17 +247,11 @@ int main(int argc, char *argv[]) {
                     printf("Invalid operation for directory mode.\n");
             }
         } else if (mode == 3) { // Keylogger operations
-            int operation = atoi(argv[3]);
-            const char *logfile = (argc > 4) ? argv[4] : "keylog.txt";
-
-            if (operation == 1) {
-                keylogger(logfile);
-            } else {
-                printf("Invalid operation for keylogger mode.\n");
-            }
-        } else {
-            printf("Invalid mode.\n");
-        }
+            if (argc == 4) { // Only need 4 arguments for keylogger (operation + filename)
+                    keylogger(filename);
+                } else {
+                    printf("Invalid mode. Usage: ./supercommand -m 3 <filename>\n");
+                }
 
         return 0;
     }
@@ -367,7 +365,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 3:
-                keylogger(NULL)
+                keylogger(NULL);
                 break;
             case 4:
                 printf("Exiting program.\n");
@@ -378,4 +376,5 @@ int main(int argc, char *argv[]) {
     } while (choice != 4);
 
     return 0;
+}
 }
