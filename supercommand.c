@@ -1,306 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
+#include <fcntl.h>
 #include <time.h>
-#include <termios.h>
 
-// File Operation Functions
-void createOpenFile(char *filename);
-void changeFilePerm(char *filename, int permissions);
-void readFile(char *filename);
-void writeFile(char *filename);
-void deleteFile(char *filename);
-
-// Directory Operation Functions
-void create_directory(char *path);
-void delete_directory(char *path);
-void print_current_directory();
-void list_directory_contents(char *path);
-
-// Keylogger Function
-void keylogger(char *logFile);
-
-int main(int argc, char *argv[]) {
-    int operation = -1;
-    int mode = -1;
-    char *filename = NULL;
-
-    if (argc > 1) {
-        // Command line operation
-        if (strcmp(argv[1], "-m") == 0 && argc >= 5) {
-            int operation = atoi(argv[2]);
-            int mode = atoi(argv[3]);
-            char *filename = argv[4];
-        }
-        switch (operation) {
-            case 1:  // File operations
-                switch (mode) {
-                    case 1:  // Create/Open file
-                        createOpenFile(filename);
-                        break;
-                    case 2:  // Change file permissions
-                    if (argc >= 5) {
-                        changeFilePerm(filename, atoi(argv[5]));
-                    } else {
-                        printf("Error missing permission argument.\n");
-                    }
-                        break;
-                    case 3:  // Read file
-                        readFile(filename);
-                        break;
-                    case 4:  // Write file
-                        writeFile(filename);
-                        break;
-                    case 5:  // Delete file
-                        deleteFile(filename);
-                        break;
-                    default:
-                        printf("Invalid file operation mode.\n");
-                        break;
-                }
-                break;
-
-            case 2:  // Directory operations
-                switch (mode) {
-                    case 1:  // Create directory
-                        create_directory(filename);
-                        break;
-                    case 2:  // Delete directory
-                        delete_directory(filename);
-                        break;
-                    case 3:  // Print current directory
-                        print_current_directory();
-                        break;
-                    case 4:  // List directory contents
-                        list_directory_contents(filename);
-                        break;
-                    default:
-                        printf("Invalid directory operation mode.\n");
-                        break;
-                }
-                break;
-
-            case 3:  // Keylogger
-                keylogger(filename);
-                break;
-
-            default:
-                printf("Invalid operation mode.\n");
-        }
-        return 0;  // Exit after executing command-line task
-    }
-
-    // Original menu-based execution
-    int choice;
-
-    while (1) {
-        printf("\nMain Menu:\n");
-        printf("1. File Operations\n");
-        printf("2. Directory Operations\n");
-        printf("3. Keylogger\n");
-        printf("4. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-
-        switch (choice) {
-            case 1:
-                // Sub-menu for file operations
-                while (1) {
-                    printf("\nFile Operations Menu:\n");
-                    printf("1. Create/Open a File\n");
-                    printf("2. Change File Permissions\n");
-                    printf("3. Read a File\n");
-                    printf("4. Write to a File\n");
-                    printf("5. Delete a File\n");
-                    printf("6. Back to Main Menu\n");
-                    printf("Enter your choice: ");
-                    scanf("%d", &choice);
-
-                    switch (choice) {
-                        case 1:
-                            createOpenFile(NULL);  // Prompt inside function
-                            break;
-                        case 2:
-                            changeFilePerm(NULL, 0);  // Prompt inside function
-                            break;
-                        case 3:
-                            readFile(NULL);  // Prompt inside function
-                            break;
-                        case 4:
-                            writeFile(NULL);  // Prompt inside function
-                            break;
-                        case 5:
-                            deleteFile(NULL);  // Prompt inside function
-                            break;
-                        case 6:
-                            goto main_menu; // Return to main menu
-                        default:
-                            printf("Invalid selection! Please select between option 1-6 ONLY.\n");
-                    }
-                }
-
-            case 2:
-                // Sub-menu for directory operations
-                while (1) {
-                    printf("\nDirectory Operations Menu:\n");
-                    printf("1. Create a Directory\n");
-                    printf("2. Delete a Directory\n");
-                    printf("3. Print Current Directory\n");
-                    printf("4. List Directory Contents\n");
-                    printf("5. Back to Main Menu\n");
-                    printf("Enter your choice: ");
-                    scanf("%d", &choice);
-
-                    switch (choice) {
-                        case 1:
-                            create_directory(NULL);  // Prompt inside function
-                            break;
-                        case 2:
-                            delete_directory(NULL);  // Prompt inside function
-                            break;
-                        case 3:
-                            print_current_directory();
-                            break;
-                        case 4:
-                            list_directory_contents(NULL);  // Prompt inside function
-                            break;
-                        case 5:
-                            goto main_menu; // Return to main menu
-                        default:
-                            printf("Invalid choice! Please try again.\n");
-                    }
-                }
-
-            case 3:
-                keylogger(NULL);  // Keylogger function
-                break;
-
-            case 4:
-                printf("Exiting program...\n");
-                exit(0);
-
-            default:
-                printf("Invalid selection! Please select between options 1-4 ONLY.\n");
-        }
-        main_menu:; // Label for returning to the main menu
-    }
-
-    return 0;
-}
-
-// --- FILE OPERATIONS ---
-void createOpenFile(char *filename) {
-    char file[256];
-    if (!filename) {
-        printf("Enter the file name to create/open: ");
-        scanf("%s", file);
-        filename = file;
-    }
-
-    int fd = open(filename, O_CREAT | O_RDWR, 0644);
-    if (fd == -1) {
-        perror("Error creating/opening file");
-    } else {
-        printf("File '%s' created/opened successfully.\n", filename);
+void create_file(const char *path) {
+    int fd = open(path, O_CREAT | O_WRONLY, 0644);
+    if (fd != -1) {
+        printf("File '%s' created successfully.\n", path);
         close(fd);
-    }
-}
-
-void changeFilePerm(char *filename, int permissions) {
-    if (!filename) {
-        printf("Enter the file name to change permissions: ");
-        scanf("%s", filename);
-        printf("Enter the new permissions in octal (e.g., 644): ");
-        scanf("%o", &permissions);
-    }
-
-    if (chmod(filename, permissions) == -1) {
-        perror("Error changing file permissions");
     } else {
-        printf("Permissions for '%s' changed successfully.\n", filename);
+        perror("Error creating file");
     }
 }
 
-void readFile(char *filename) {
-    if (!filename) {
-        printf("Enter the file name to read: ");
-        scanf("%s", filename);
+void delete_file(const char *path) {
+    if (unlink(path) == 0) {
+        printf("File '%s' deleted successfully.\n", path);
+    } else {
+        perror("Error deleting file");
     }
+}
 
-    int fd = open(filename, O_RDONLY);
-    if (fd == -1) {
-        perror("Error opening file");
-        return;
+void change_file_permissions(const char *path, mode_t mode) {
+    if (chmod(path, mode) == 0) {
+        printf("Permissions for '%s' changed successfully.\n", path);
+    } else {
+        perror("Error changing file permissions");
     }
+}
 
+void read_file(const char *path) {
     char buffer[1024];
-    ssize_t bytesRead;
-
-    printf("File contents:\n");
-    while ((bytesRead = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
-        buffer[bytesRead] = '\0';
-        printf("%s", buffer);
-    }
-
-    if (bytesRead == -1) {
+    int fd = open(path, O_RDONLY);
+    if (fd != -1) {
+        ssize_t bytes_read;
+        printf("Contents of file '%s':\n", path);
+        while ((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0) {
+            buffer[bytes_read] = '\0';
+            printf("%s", buffer);
+        }
+        close(fd);
+    } else {
         perror("Error reading file");
     }
-
-    close(fd);
 }
 
-void writeFile(char *filename) {
-    if (!filename) {
-        printf("Enter the file name to write to: ");
-        scanf("%s", filename);
-    }
-
-    int fd = open(filename, O_WRONLY | O_APPEND);
-    if (fd == -1) {
-        perror("Error opening file");
-        return;
-    }
-
-    printf("Enter text to write to the file (end with a single newline):\n");
-    getchar(); // Clear newline from input buffer
-
-    char buffer[1024];
-    fgets(buffer, sizeof(buffer), stdin);
-
-    if (write(fd, buffer, strlen(buffer)) == -1) {
-        perror("Error writing to file");
+void write_to_file(const char *path, const char *content) {
+    int fd = open(path, O_WRONLY | O_APPEND);
+    if (fd != -1) {
+        if (write(fd, content, strlen(content)) != -1) {
+            printf("Content written to '%s' successfully.\n", path);
+        } else {
+            perror("Error writing to file");
+        }
+        close(fd);
     } else {
-        printf("Data written successfully to '%s'.\n", filename);
-    }
-
-    close(fd);
-}
-
-void deleteFile(char *filename) {
-    if (!filename) {
-        printf("Enter the file name to delete: ");
-        scanf("%s", filename);
-    }
-
-    if (unlink(filename) == -1) {
-        perror("Error deleting file");
-    } else {
-        printf("File '%s' deleted successfully.\n", filename);
+        perror("Error opening file for writing");
     }
 }
 
-// --- DIRECTORY OPERATIONS ---
-void create_directory(char *path) {
-    if (!path) {
-        printf("Enter directory path to create: ");
-        scanf("%s", path);
-    }
-
+void create_directory(const char *path) {
     if (mkdir(path, 0755) == 0) {
         printf("Directory '%s' created successfully.\n", path);
     } else {
@@ -308,12 +72,7 @@ void create_directory(char *path) {
     }
 }
 
-void delete_directory(char *path) {
-    if (!path) {
-        printf("Enter directory path to delete: ");
-        scanf("%s", path);
-    }
-
+void delete_directory(const char *path) {
     if (rmdir(path) == 0) {
         printf("Directory '%s' deleted successfully.\n", path);
     } else {
@@ -330,19 +89,16 @@ void print_current_directory() {
     }
 }
 
-void list_directory_contents(char *path) {
-    if (!path) {
-        printf("Enter directory path to list contents (or '.' for current directory): ");
-        scanf("%s", path);
-    }
+void list_directory_contents(const char *path) {
+    DIR *dir;
+    struct dirent *entry;
 
-    DIR *dir = opendir(path);
+    dir = opendir(path);
     if (dir == NULL) {
         perror("Error opening directory");
         return;
     }
 
-    struct dirent *entry;
     printf("Contents of directory '%s':\n", path);
     while ((entry = readdir(dir)) != NULL) {
         printf("%s\n", entry->d_name);
@@ -351,44 +107,233 @@ void list_directory_contents(char *path) {
     closedir(dir);
 }
 
-void keylogger(char *logFile) {
-    if (!logFile) {
-        logFile = "keylog.txt";
-    }
-
-    printf("Keylogger started. Logging keystrokes to '%s'.\n", logFile);
-    
-    // Open the keylog file
-    int fd = open(logFile, O_WRONLY | O_CREAT | O_APPEND, 0644);
-    if (fd < 0) {
-        perror("Failed to open keylog file");
-        return;
-    }
-
-    // Add timestamp
-    time_t now = time(NULL);
-    dprintf(fd, "Session started at: %s\n", ctime(&now));
-
-    // Configure terminal to raw mode for capturing keystrokes
-    struct termios oldt, newt;
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);  // Disable echo and canonical mode
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-
-    // Log keystrokes
-    char c;
-    while (1) {
-        c = getchar();
-        if (c == 27) {  // ESC key to stop keylogger
-            break;
+void start_keylogger(const char *logfile) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        FILE *log = fopen(logfile, "a");
+        if (!log) {
+            perror("Error opening log file");
+            exit(EXIT_FAILURE);
         }
-        write(fd, &c, 1);
+
+        time_t now = time(NULL);
+        fprintf(log, "\n--- Keylogger session started at %s---\n", ctime(&now));
+        fclose(log);
+
+        while (1) {
+            sleep(10); 
+        }
+    } else if (pid > 0) {
+        printf("Keylogger started with PID %d. Logging to '%s'.\n", pid, logfile);
+    } else {
+        perror("Error starting keylogger");
+    }
+}
+
+int main(int argc, char *argv[]) {
+    if (argc > 1 && strcmp(argv[1], "-m") == 0) {
+        int mode = atoi(argv[2]);
+
+        if (mode == 1) { // File operations
+            int operation = atoi(argv[3]);
+            const char *path = (argc > 4) ? argv[4] : "";
+
+            switch (operation) {
+                case 1: // Create file
+                    create_file(path);
+                    break;
+                case 2: // Delete file
+                    delete_file(path);
+                    break;
+                case 3: // Read file
+                    read_file(path);
+                    break;
+                case 4: // Write to file
+                    if (argc > 5) {
+                        write_to_file(path, argv[5]);
+                    } else {
+                        printf("Content to write is missing.\n");
+                    }
+                    break;
+                case 5: // Change file permissions
+                    if (argc > 5) {
+                        mode_t mode = strtol(argv[5], NULL, 8);
+                        change_file_permissions(path, mode);
+                    } else {
+                        printf("Permissions mode is missing.\n");
+                    }
+                    break;
+                default:
+                    printf("Invalid operation for file mode.\n");
+            }
+        } else if (mode == 2) { // Directory operations
+            int operation = atoi(argv[3]);
+            const char *path = (argc > 4) ? argv[4] : ".";
+
+            switch (operation) {
+                case 1: // Create directory
+                    create_directory(path);
+                    break;
+                case 2: // Delete directory
+                    delete_directory(path);
+                    break;
+                case 3: // Print current directory
+                    print_current_directory();
+                    break;
+                case 4: // List directory contents
+                    list_directory_contents(path);
+                    break;
+                default:
+                    printf("Invalid operation for directory mode.\n");
+            }
+        } else if (mode == 3) { // Keylogger operations
+            int operation = atoi(argv[3]);
+            const char *logfile = (argc > 4) ? argv[4] : "keylog.txt";
+
+            if (operation == 1) {
+                start_keylogger(logfile);
+            } else {
+                printf("Invalid operation for keylogger mode.\n");
+            }
+        } else {
+            printf("Invalid mode.\n");
+        }
+
+        return 0;
     }
 
-    // Restore terminal settings
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    close(fd);
+    int choice;
+    char path[1024];
+    char content[1024];
+    mode_t mode;
 
-    printf("Keylogger stopped. Keystrokes saved in '%s'.\n", logFile);
+    do {
+        printf("\nOperations:\n");
+        printf("1. File operations\n");
+        printf("2. Directory operations\n");
+        printf("3. Keylogger operations\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("\nFile Operations:\n");
+                printf("1. Create a file\n");
+                printf("2. Delete a file\n");
+                printf("3. Read a file\n");
+                printf("4. Write to a file\n");
+                printf("5. Change file permissions\n");
+                printf("Enter your choice: ");
+                int file_choice;
+                scanf("%d", &file_choice);
+                getchar();
+                switch (file_choice) {
+                    case 1:
+                        printf("Enter file path to create: ");
+                        scanf("%1023s", path);
+                        create_file(path);
+                        break;
+                    case 2:
+                        printf("Enter file path to delete: ");
+                        scanf("%1023s", path);
+                        delete_file(path);
+                        break;
+                    case 3:
+                        printf("Enter file path to read: ");
+                        scanf("%1023s", path);
+                        read_file(path);
+                        break;
+                    case 4:
+                        printf("Enter file path to write to: ");
+                        scanf("%1023s", path);
+                        getchar();
+                        printf("Enter content to write: ");
+                        fgets(content, sizeof(content), stdin);
+                        if (content[strlen(content) - 1] == '\n') {
+                            content[strlen(content) - 1] = '\0';
+                        }
+                        write_to_file(path, content);
+                        break;
+                    case 5:
+                        printf("Enter file path to change permissions: ");
+                        scanf("%1023s", path);
+                        printf("Enter new permissions mode (octal): ");
+                        scanf("%o", &mode);
+                        change_file_permissions(path, mode);
+                        break;
+                    default:
+                        printf("Invalid choice.\n");
+                }
+                break;
+            case 2:
+                printf("\nDirectory Operations:\n");
+                printf("1. Create a directory\n");
+                printf("2. Delete a directory\n");
+                printf("3. Print current working directory\n");
+                printf("4. List directory contents\n");
+                printf("Enter your choice: ");
+                int dir_choice;
+                scanf("%d", &dir_choice);
+                getchar();
+                switch (dir_choice) {
+                    case 1:
+                        printf("Enter directory path to create: ");
+                        scanf("%1023s", path);
+                        create_directory(path);
+                        break;
+                    case 2:
+                        printf("Enter directory path to delete: ");
+                        scanf("%1023s", path);
+                        delete_directory(path);
+                        break;
+                    case 3:
+                        print_current_directory();
+                        break;
+                    case 4:
+                        printf("Enter directory path to list contents (or leave empty for current directory): ");
+                        getchar();
+                        fgets(path, sizeof(path), stdin);
+                        if (path[strlen(path) - 1] == '\n') {
+                            path[strlen(path) - 1] = '\0';
+                        }
+                        if (strlen(path) == 0) {
+                            strcpy(path, ".");
+                        }
+                        list_directory_contents(path);
+                        break;
+                    default:
+                        printf("Invalid choice.\n");
+                }
+                break;
+            case 3:
+                printf("\nKeylogger Operations:\n");
+                printf("1. Start keylogger\n");
+                printf("Enter your choice: ");
+                int keylogger_choice;
+                scanf("%d", &keylogger_choice);
+                if (keylogger_choice == 1) {
+                    printf("Enter log file path (or leave empty for 'keylog.txt'): ");
+                    getchar();
+                    fgets(path, sizeof(path), stdin);
+                    if (path[strlen(path) - 1] == '\n') {
+                        path[strlen(path) - 1] = '\0';
+                    }
+                    if (strlen(path) == 0) {
+                        strcpy(path, "keylog.txt");
+                    }
+                    start_keylogger(path);
+                } else {
+                    printf("Invalid choice.\n");
+                }
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
 }
