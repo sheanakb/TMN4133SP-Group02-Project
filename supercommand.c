@@ -7,55 +7,114 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-//File Operation
-void create_or_open_file();
-void change_file_permissions();
-void read_file();
-void write_to_file();
-void delete_file();
+// File Operation Functions
+void createOpenFile();
+void changeFilePerm();
+void readFile();
+void writeFile();
+void deleteFile();
+
+// Directory Operation Functions
+void create_directory();
+void delete_directory();
+void print_current_directory();
+void list_directory_contents();
 
 int main() {
     int choice;
 
     while (1) {
-        printf("\nFile Operations Menu:\n");
-        printf("1. Create/Open a File\n");
-        printf("2. Change File Permissions\n");
-        printf("3. Read a File\n");
-        printf("4. Write to a File\n");
-        printf("5. Delete a File\n");
-        printf("6. Exit\n");
+        printf("\nMain Menu:\n");
+        printf("1. File Operations\n");
+        printf("2. Directory Operations\n");
+        printf("3. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
         switch (choice) {
             case 1:
-                create_or_open_file();
-                break;
+                // Sub-menu for file operations
+                while (1) {
+                    printf("\nFile Operations Menu:\n");
+                    printf("1. Create/Open a File\n");
+                    printf("2. Change File Permissions\n");
+                    printf("3. Read a File\n");
+                    printf("4. Write to a File\n");
+                    printf("5. Delete a File\n");
+                    printf("6. Back to Main Menu\n");
+                    printf("Enter your choice: ");
+                    scanf("%d", &choice);
+
+                    switch (choice) {
+                        case 1:
+                            create_or_open_file();
+                            break;
+                        case 2:
+                            change_file_permissions();
+                            break;
+                        case 3:
+                            read_file();
+                            break;
+                        case 4:
+                            write_to_file();
+                            break;
+                        case 5:
+                            delete_file();
+                            break;
+                        case 6:
+                            goto main_menu; // Return to main menu
+                        default:
+                            printf("Invalid choice! Please try again.\n");
+                    }
+                }
+
             case 2:
-                change_file_permissions();
-                break;
+                // Sub-menu for directory operations
+                while (1) {
+                    printf("\nDirectory Operations Menu:\n");
+                    printf("1. Create a Directory\n");
+                    printf("2. Delete a Directory\n");
+                    printf("3. Print Current Directory\n");
+                    printf("4. List Directory Contents\n");
+                    printf("5. Back to Main Menu\n");
+                    printf("Enter your choice: ");
+                    scanf("%d", &choice);
+
+                    switch (choice) {
+                        case 1:
+                            create_directory();
+                            break;
+                        case 2:
+                            delete_directory();
+                            break;
+                        case 3:
+                            print_current_directory();
+                            break;
+                        case 4:
+                            list_directory_contents();
+                            break;
+                        case 5:
+                            goto main_menu; // Return to main menu
+                        default:
+                            printf("Invalid choice! Please try again.\n");
+                    }
+                }
+
             case 3:
-                read_file();
-                break;
-            case 4:
-                write_to_file();
-                break;
-            case 5:
-                delete_file();
-                break;
-            case 6:
-                printf("Exiting...\n");
+                printf("Exiting program...\n");
                 exit(0);
+
             default:
                 printf("Invalid choice! Please try again.\n");
         }
+        main_menu:; // Label for returning to the main menu
     }
 
     return 0;
 }
 
-void create_or_open_file() {
+// --- FILE OPERATIONS ---
+void createOpenFile() {
     char filename[256];
     printf("Enter the file name to create/open: ");
     scanf("%s", filename);
@@ -69,7 +128,7 @@ void create_or_open_file() {
     }
 }
 
-void change_file_permissions() {
+void changeFilePerm() {
     char filename[256];
     int permissions;
 
@@ -85,7 +144,7 @@ void change_file_permissions() {
     }
 }
 
-void read_file() {
+void readFile() {
     char filename[256];
     printf("Enter the file name to read: ");
     scanf("%s", filename);
@@ -112,7 +171,7 @@ void read_file() {
     close(fd);
 }
 
-void write_to_file() {
+void writeFile() {
     char filename[256];
     printf("Enter the file name to write to: ");
     scanf("%s", filename);
@@ -138,7 +197,7 @@ void write_to_file() {
     close(fd);
 }
 
-void delete_file() {
+void deleteFile() {
     char filename[256];
     printf("Enter the file name to delete: ");
     scanf("%s", filename);
@@ -150,8 +209,12 @@ void delete_file() {
     }
 }
 
-//Directory operations = Rai
-void create_directory(const char *path) {
+// --- DIRECTORY OPERATIONS ---
+void create_directory() {
+    char path[256];
+    printf("Enter directory path to create: ");
+    scanf("%s", path);
+
     if (mkdir(path, 0755) == 0) {
         printf("Directory '%s' created successfully.\n", path);
     } else {
@@ -159,7 +222,11 @@ void create_directory(const char *path) {
     }
 }
 
-void delete_directory(const char *path) {
+void delete_directory() {
+    char path[256];
+    printf("Enter directory path to delete: ");
+    scanf("%s", path);
+
     if (rmdir(path) == 0) {
         printf("Directory '%s' deleted successfully.\n", path);
     } else {
@@ -176,101 +243,22 @@ void print_current_directory() {
     }
 }
 
-void list_directory_contents(const char *path) {
-    DIR *dir;
-    struct dirent *entry;
+void list_directory_contents() {
+    char path[256];
+    printf("Enter directory path to list contents (or '.' for current directory): ");
+    scanf("%s", path);
 
-    dir = opendir(path);
+    DIR *dir = opendir(path);
     if (dir == NULL) {
         perror("Error opening directory");
         return;
     }
 
+    struct dirent *entry;
     printf("Contents of directory '%s':\n", path);
     while ((entry = readdir(dir)) != NULL) {
         printf("%s\n", entry->d_name);
     }
 
     closedir(dir);
-}
-
-int main(int argc, char *argv[]) {
-    if (argc > 1 && strcmp(argv[1], "-m") == 0) {
-        int mode = atoi(argv[2]);
-
-        if (mode == 2) { // Directory operations
-            int operation = atoi(argv[3]);
-            const char *path = (argc > 4) ? argv[4] : ".";
-
-            switch (operation) {
-                case 1: // Create directory
-                    create_directory(path);
-                    break;
-                case 2: // Delete directory
-                    delete_directory(path);
-                    break;
-                case 3: // Print current directory
-                    print_current_directory();
-                    break;
-                case 4: // List directory contents
-                    list_directory_contents(path);
-                    break;
-                default:
-                    printf("Invalid operation for directory mode.\n");
-            }
-        } else {
-            printf("Invalid mode. Use mode 2 for directory operations.\n");
-        }
-
-        return 0;
-    }
-
-    int choice;
-    char path[1024];
-
-    do {
-        printf("\nDirectory Operations:\n");
-        printf("1. Create a directory\n");
-        printf("2. Delete a directory\n");
-        printf("3. Print the current working directory\n");
-        printf("4. List directory contents\n");
-        printf("5. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-        getchar(); // To consume the newline character
-
-        switch (choice) {
-            case 1:
-                printf("Enter directory path to create: ");
-                scanf("%1023s", path);
-                create_directory(path);
-                break;
-            case 2:
-                printf("Enter directory path to delete: ");
-                scanf("%1023s", path);
-                delete_directory(path);
-                break;
-            case 3:
-                print_current_directory();
-                break;
-            case 4:
-                printf("Enter directory path to list (or press Enter for current directory): ");
-                fgets(path, sizeof(path), stdin);
-                if (path[strlen(path) - 1] == '\n') {
-                    path[strlen(path) - 1] = '\0';
-                }
-                if (strlen(path) == 0) {
-                    strcpy(path, ".");
-                }
-                list_directory_contents(path);
-                break;
-            case 5:
-                printf("Exiting...\n");
-                break;
-            default:
-                printf("Invalid choice. Please try again.\n");
-        }
-    } while (choice != 5);
-
-    return 0;
 }
