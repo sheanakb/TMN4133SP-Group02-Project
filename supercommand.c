@@ -28,24 +28,32 @@ void keylogger(char *logFile);
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         // Command line operation
-        int mode = atoi(argv[2]);
-        switch (atoi(argv[1])) {
+        if (strcmp(argv[1], "-m") == 0 && argc >= 4) {
+            int operation = atoi(argv[2]);
+            int mode = atoi(argv[3]);
+            char *filename = argv[4];
+        }
+        switch (operation) {
             case 1:  // File operations
                 switch (mode) {
                     case 1:  // Create/Open file
-                        createOpenFile(argv[3]);
+                        createOpenFile(filename);
                         break;
                     case 2:  // Change file permissions
-                        changeFilePerm(argv[3], atoi(argv[4]));
+                    if (argc >= 5) {
+                        changeFilePerm(filename, atoi(argv[5]));
+                    } else {
+                        printf("Error missing permission argument.\n");
+                    }
                         break;
                     case 3:  // Read file
-                        readFile(argv[3]);
+                        readFile(filename);
                         break;
                     case 4:  // Write file
-                        writeFile(argv[3]);
+                        writeFile(filename);
                         break;
                     case 5:  // Delete file
-                        deleteFile(argv[3]);
+                        deleteFile(filename);
                         break;
                     default:
                         printf("Invalid file operation mode.\n");
@@ -56,16 +64,16 @@ int main(int argc, char *argv[]) {
             case 2:  // Directory operations
                 switch (mode) {
                     case 1:  // Create directory
-                        create_directory(argv[3]);
+                        create_directory(filename);
                         break;
                     case 2:  // Delete directory
-                        delete_directory(argv[3]);
+                        delete_directory(filename);
                         break;
                     case 3:  // Print current directory
                         print_current_directory();
                         break;
                     case 4:  // List directory contents
-                        list_directory_contents(argv[3]);
+                        list_directory_contents(filename);
                         break;
                     default:
                         printf("Invalid directory operation mode.\n");
@@ -74,7 +82,7 @@ int main(int argc, char *argv[]) {
                 break;
 
             case 3:  // Keylogger
-                keylogger(argv[3]);
+                keylogger(filename);
                 break;
 
             default:
