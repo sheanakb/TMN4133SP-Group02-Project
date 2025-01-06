@@ -294,36 +294,18 @@ int main(int argc, char *argv[]) {
                 getchar();
                 switch (file_choice) {
                     case 1:
-                        printf("Enter file path to create: ");
-                        scanf("%1023s", path);
                         createOpenFile(path);
                         break;
                     case 2:
-                        printf("Enter file path to delete: ");
-                        scanf("%1023s", path);
                         deleteFile(path);
                         break;
                     case 3:
-                        printf("Enter file path to read: ");
-                        scanf("%1023s", path);
                         readFile(path);
                         break;
                     case 4:
-                        printf("Enter file path to write to: ");
-                        scanf("%1023s", path);
-                        getchar();
-                        printf("Enter content to write: ");
-                        fgets(content, sizeof(content), stdin);
-                        if (content[strlen(content) - 1] == '\n') {
-                            content[strlen(content) - 1] = '\0';
-                        }
                         writeFile(path, content);
                         break;
                     case 5:
-                        printf("Enter file path to change permissions: ");
-                        scanf("%1023s", path);
-                        printf("Enter new permissions mode (octal): ");
-                        scanf("%o", &mode);
                         changeFilePerm(path, mode);
                         break;
                     default:
