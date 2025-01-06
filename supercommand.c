@@ -47,24 +47,24 @@ int main() {
 
                     switch (choice) {
                         case 1:
-                            create_or_open_file();
+                            createOpenFile();
                             break;
                         case 2:
-                            change_file_permissions();
+                            changeFilePerm();
                             break;
                         case 3:
-                            read_file();
+                            readFile();
                             break;
                         case 4:
-                            write_to_file();
+                            writeFile();
                             break;
                         case 5:
-                            delete_file();
+                            deleteFile();
                             break;
                         case 6:
                             goto main_menu; // Return to main menu
                         default:
-                            printf("Invalid choice! Please try again.\n");
+                            printf("Invalid selection! Please select between option 1-6 ONLY.\n");
                     }
                 }
 
@@ -105,7 +105,7 @@ int main() {
                 exit(0);
 
             default:
-                printf("Invalid choice! Please try again.\n");
+                printf("Invalid selection! Please select between options 1-5 ONLY.\n");
         }
         main_menu:; // Label for returning to the main menu
     }
