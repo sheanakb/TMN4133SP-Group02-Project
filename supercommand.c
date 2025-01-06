@@ -6,8 +6,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
-#include <time.h>
-#include <termios.h>
 
 // File Operation Functions
 void createOpenFile();
@@ -98,7 +96,7 @@ int main() {
                         case 5:
                             goto main_menu; // Return to main menu
                         default:
-                            printf("Invalid choice! Please try again.\n");
+                            printf("Invalid selection! Please select between options 1-5 ONLY.\n");
                     }
                 }
 
@@ -107,7 +105,7 @@ int main() {
                 exit(0);
 
             default:
-                printf("Invalid selection! Please select between options 1-5 ONLY.\n");
+                printf("Invalid selection! Please select between options 1-3 ONLY.\n");
         }
         main_menu:; // Label for returning to the main menu
     }
