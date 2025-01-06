@@ -348,5 +348,5 @@ int main(int argc, char *argv[]) {
         default:
             printf("Invalid choice. Please try again.\n");
     }
-    }
+    } while (1);
 }
