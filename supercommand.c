@@ -282,29 +282,29 @@ int main(int argc, char *argv[]) {
 
                         // Combine path and filename to create full path
                         snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
-                        createOpenFile(path);
+                        createOpenFile(fullPath);
                         break;
                     case 2:
                         getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-                        deleteFile(path);
+                        deleteFile(fullPath);
                         break;
                     case 3:
                         getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
-                        readFile(path);
+                        readFile(fullPath);
                         break;
                     case 4:
                         getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
                         printf("Enter content to write to the file: ");
                         fgets(content, sizeof(content), stdin);
                         content[strcspn(content, "\n")] = 0;  // Remove newline character
-                        writeFile(path, content);
+                        writeFile(fullPath, content);
                         break;
                     case 5:
                         getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
                         printf("Enter permissions (e.g., 0644): ");
                         scanf("%o", &mode);
                         getchar();  // To consume the newline character after entering the permissions
-                        changeFilePerm(path, mode);
+                        changeFilePerm(fullPath, mode);
                         break;
                 default:
                     printf("Invalid file operation choice. Please select between 1-5 ONLY.\n");
