@@ -270,45 +270,41 @@ int main(int argc, char *argv[]) {
             scanf("%d", &file_choice);
             getchar(); // Consume newline
             switch (file_choice) {
-                case 1: // Create a file
-                    // Prompt for directory path and filename
-                    printf("Enter directory path: ");
-                    fgets(path, sizeof(path), stdin);
-                    path[strcspn(path, "\n")] = 0;  // Remove the newline character
+                 // Prompt for directory path and filename
+                        printf("Enter directory path: ");
+                        fgets(path, sizeof(path), stdin);
+                        path[strcspn(path, "\n")] = 0;  // Remove the newline character
 
-                    printf("Enter filename: ");
-                    fgets(filename, sizeof(filename), stdin);
-                    filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
+                        printf("Enter filename: ");
+                        fgets(filename, sizeof(filename), stdin);
+                        filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
 
-                    // Combine path and filename to create full path
-                    if (strlen(path) + strlen(filename) + 1 < sizeof(fullPath)) {
+                        // Combine path and filename to create full path
                         snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
-                    } else {
-                        printf("Error: Path and filename are too long.\n");
-                    }
-                    createOpenFile(path);
-                    break;
-                case 2: // Delete a file
-                    getDirectoryName(fullPath, sizeof(fullPath)); 
-                    deleteFile(path);
-                    break;
-                case 3: // Read a file
-                    getDirectoryName(fullPath, sizeof(fullPath)); 
-                    readFile(path);
-                    break;
-                case 4: // Write to a file
-                    getDirectoryName(fullPath, sizeof(fullPath)); 
-                    printf("Enter the content to write: ");
-                    fgets(content, sizeof(content), stdin);
-                    strtok(content, "\n"); // Remove trailing newline
-                    writeFile(path, content);
-                    break;
-                case 5: // Change file permissions
-                    getDirectoryName(fullPath, sizeof(fullPath)); 
-                    printf("Enter the new permissions (octal, e.g., 0644): ");
-                    scanf("%o", &mode);
-                    changeFilePerm(path, mode);
-                    break;
+                        createOpenFile(path);
+                        break;
+                    case 2:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+                        deleteFile(path);
+                        break;
+                    case 3:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+                        readFile(path);
+                        break;
+                    case 4:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+                        printf("Enter content to write to the file: ");
+                        fgets(content, sizeof(content), stdin);
+                        content[strcspn(content, "\n")] = 0;  // Remove newline character
+                        writeFile(path, content);
+                        break;
+                    case 5:
+                        getDirectoryName(fullPath, sizeof(fullPath));  // Get the full path for the file
+                        printf("Enter permissions (e.g., 0644): ");
+                        scanf("%o", &mode);
+                        getchar();  // To consume the newline character after entering the permissions
+                        changeFilePerm(path, mode);
+                        break;
                 default:
                     printf("Invalid file operation choice. Please select between 1-5 ONLY.\n");
             }
