@@ -241,7 +241,7 @@ int main(int argc, char *argv[]) {
     }
 
     int choice;
-    char path[1024];
+    char path[256];
     char content[1024];
     char directory [256];
     char filename [256];
