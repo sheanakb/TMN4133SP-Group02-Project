@@ -223,9 +223,9 @@ int main(int argc, char *argv[]) {
     }
 
     int choice;
-    char path[1024];
+    char path[254];
     char content[1024];
-    char directory [1024];
+    char directory [254];
     mode_t mode;
 
     do {
