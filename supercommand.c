@@ -83,6 +83,8 @@ void writeFile(const char *path, const char *content) {
     }
 }
 
+//---DIRECTORY OPERATION---
+
 void create_directory(const char *path) {
     if (mkdir(path, 0755) == 0) {
         printf("Directory '%s' created successfully.\n", path);
@@ -125,6 +127,8 @@ void list_directory_contents(const char *path) {
 
     closedir(dir);
 }
+
+//---KEYLOGGER OPERATION---
 
 void keylogger(char *logFile) {
     if (!logFile) {
@@ -271,7 +275,7 @@ int main(int argc, char *argv[]) {
             getchar(); // Consume newline
             switch (file_choice) {
                 case 1:
-                 // Prompt for directory path and filename
+                        // Prompt for directory path and filename
                         printf("Enter directory path: ");
                         fgets(path, sizeof(path), stdin);
                         path[strcspn(path, "\n")] = 0;  // Remove the newline character
@@ -280,7 +284,7 @@ int main(int argc, char *argv[]) {
                         fgets(filename, sizeof(filename), stdin);
                         filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
 
-                        // Combine path and filename to create full path
+                        // Combine path and filename to create the full path
                         snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
                         createOpenFile(fullPath);
                         break;
@@ -341,7 +345,7 @@ int main(int argc, char *argv[]) {
                     list_directory_contents(path);
                     break;
                 default:
-                    printf("Invalid directory operation choice.\n");
+                    printf("Invalid directory operation choice. Please select between 1-4 ONLY.\n");
             }
             break;
 
@@ -366,7 +370,7 @@ int main(int argc, char *argv[]) {
             }
             break;
 
-        case 4: // Exit
+        case 4: // Exit the program
             printf("Exiting the program. Goodbye!\n");
             exit(0);
             break;
