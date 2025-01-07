@@ -27,10 +27,10 @@ void getDirectoryName(char *fullPath, size_t size) {
     snprintf(fullPath, size, "%s/%s", dirName, filename);
 }
 
-void createOpenFile(const char *path) {
-    int fd = open(path, O_CREAT | O_WRONLY, 0644);
+void createOpenFile(const char *fullPath) {
+    int fd = open(fullPath, O_CREAT | O_WRONLY, 0644);
     if (fd != -1) {
-        printf("File '%s' created successfully.\n", path);
+        printf("File '%s' created successfully.\n", fullPath);
         close(fd);
     } else {
         perror("Error creating file");
