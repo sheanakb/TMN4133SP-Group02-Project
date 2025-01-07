@@ -223,9 +223,10 @@ int main(int argc, char *argv[]) {
     }
 
     int choice;
-    char path[254];
+    char path[1024];
     char content[1024];
-    char directory [254];
+    char directory [256];
+    char filename [256];
     mode_t mode;
 
     do {
@@ -253,9 +254,9 @@ int main(int argc, char *argv[]) {
                 case 1: // Create a file
                     printf("Enter directory path: ");
                     scanf("%s", directory);
-                    printf("Enter file name: ");
+                    printf("Enter file name to create/open: ");
                     scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
                     createOpenFile(path);
                     break;
                 case 2: // Delete a file
@@ -263,7 +264,7 @@ int main(int argc, char *argv[]) {
                     scanf("%s", directory);
                     printf("Enter the file name to delete: ");
                     scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
                     deleteFile(path);
                     break;
                 case 3: // Read a file
@@ -271,15 +272,15 @@ int main(int argc, char *argv[]) {
                     scanf("%s", directory);
                     printf("Enter the file name to read: ");
                     scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
                     readFile(path);
                     break;
                 case 4: // Write to a file
                     printf("Enter directory name: ");
                     scanf("%s", directory);
-                    printf("Enter the file path to write to: ");
+                    printf("Enter the file name to write to: ");
                     scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
                     getchar(); // Consume newline
                     printf("Enter the content to write: ");
                     fgets(content, sizeof(content), stdin);
@@ -289,9 +290,9 @@ int main(int argc, char *argv[]) {
                 case 5: // Change file permissions
                     printf("Enter directory name: ");
                     scanf("%s", directory);
-                    printf("Enter the file path: ");
+                    printf("Enter the file name: ");
                     scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
                     printf("Enter the new permissions (octal, e.g., 0644): ");
                     scanf("%o", &mode);
                     changeFilePerm(path, mode);
