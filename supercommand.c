@@ -225,10 +225,11 @@ int main(int argc, char *argv[]) {
     int choice;
     char path[1024];
     char content[1024];
+    char directory [1024];
     mode_t mode;
 
     do {
-        printf("\nOperations:\n");
+        printf("\n---SUPERCOMMAND OPERATIONS---:\n");
         printf("1. File operations\n");
         printf("2. Directory operations\n");
         printf("3. Keylogger operations\n");
@@ -250,23 +251,35 @@ int main(int argc, char *argv[]) {
             getchar(); // Consume newline
             switch (file_choice) {
                 case 1: // Create a file
-                    printf("Enter the file path to create: ");
+                    printf("Enter directory path: ");
+                    scanf("%s", directory);
+                    printf("Enter file name: ");
                     scanf("%s", path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, path);
                     createOpenFile(path);
                     break;
                 case 2: // Delete a file
-                    printf("Enter the file path to delete: ");
+                    printf("Enter directory name: ");
+                    scanf("%s", directory);
+                    printf("Enter the file name to delete: ");
                     scanf("%s", path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, path);
                     deleteFile(path);
                     break;
                 case 3: // Read a file
-                    printf("Enter the file path to read: ");
+                    printf("Enter directory name: ");
+                    scanf("%s", directory);
+                    printf("Enter the file name to read: ");
                     scanf("%s", path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, path);
                     readFile(path);
                     break;
                 case 4: // Write to a file
+                    printf("Enter directory name: ");
+                    scanf("%s", directory);
                     printf("Enter the file path to write to: ");
                     scanf("%s", path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, path);
                     getchar(); // Consume newline
                     printf("Enter the content to write: ");
                     fgets(content, sizeof(content), stdin);
@@ -274,14 +287,17 @@ int main(int argc, char *argv[]) {
                     writeFile(path, content);
                     break;
                 case 5: // Change file permissions
+                    printf("Enter directory name: ");
+                    scanf("%s", directory);
                     printf("Enter the file path: ");
                     scanf("%s", path);
+                    snprintf(path, sizeof(path), "%s/%s", directory, path);
                     printf("Enter the new permissions (octal, e.g., 0644): ");
                     scanf("%o", &mode);
                     changeFilePerm(path, mode);
                     break;
                 default:
-                    printf("Invalid file operation choice.\n");
+                    printf("Invalid file operation choice. Please select between 1-5 ONLY.\n");
             }
             break;
 

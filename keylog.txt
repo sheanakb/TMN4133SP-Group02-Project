@@ -16,3 +16,6 @@ Session started at: Mon Jan  6 21:53:09 2025
 hello world. this is me testing the keylogger. hopefully it works. 
 --- Keylogger session started at Tue Jan  7 00:25:45 2025
 ---
+Session started at: Tue Jan  7 02:18:37 2025
+
+This is a testing to determine whether the key log is working. 
