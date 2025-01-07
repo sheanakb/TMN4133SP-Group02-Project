@@ -9,6 +9,24 @@
 #include <time.h>
 #include <termios.h>
 
+//---FILE OPERATION---
+
+void getDirectoryName(char *fullPath, size_t size) {
+    char dirName[256], filename[256];
+
+    // Prompt for directory name and filename
+    printf("Enter directory name: ");
+    fgets(dirName, sizeof(dirName), stdin);
+    dirName[strcspn(dirName, "\n")] = 0;  // Remove newline character
+
+    printf("Enter filename: ");
+    fgets(filename, sizeof(filename), stdin);
+    filename[strcspn(filename, "\n")] = 0;  // Remove newline character
+
+    // Combine directory name and filename to create full path
+    snprintf(fullPath, size, "%s/%s", dirName, filename);
+}
+
 void createOpenFile(const char *path) {
     int fd = open(path, O_CREAT | O_WRONLY, 0644);
     if (fd != -1) {
@@ -227,6 +245,7 @@ int main(int argc, char *argv[]) {
     char content[1024];
     char directory [256];
     char filename [256];
+    char fullPath[1024];
     mode_t mode;
 
     do {
@@ -252,47 +271,40 @@ int main(int argc, char *argv[]) {
             getchar(); // Consume newline
             switch (file_choice) {
                 case 1: // Create a file
+                    // Prompt for directory path and filename
                     printf("Enter directory path: ");
-                    scanf("%s", directory);
-                    printf("Enter file name to create/open: ");
-                    scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
+                    fgets(path, sizeof(path), stdin);
+                    path[strcspn(path, "\n")] = 0;  // Remove the newline character
+
+                    printf("Enter filename: ");
+                    fgets(filename, sizeof(filename), stdin);
+                    filename[strcspn(filename, "\n")] = 0;  // Remove the newline character
+
+                    // Combine path and filename to create full path
+                    if (strlen(path) + strlen(filename) + 1 < sizeof(fullPath)) {
+                        snprintf(fullPath, sizeof(fullPath), "%s/%s", path, filename);
+                    } else {
+                        printf("Error: Path and filename are too long.\n");
+                    }
                     createOpenFile(path);
                     break;
                 case 2: // Delete a file
-                    printf("Enter directory name: ");
-                    scanf("%s", directory);
-                    printf("Enter the file name to delete: ");
-                    scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
+                    getDirectoryName(fullPath, sizeof(fullPath)); 
                     deleteFile(path);
                     break;
                 case 3: // Read a file
-                    printf("Enter directory name: ");
-                    scanf("%s", directory);
-                    printf("Enter the file name to read: ");
-                    scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
+                    getDirectoryName(fullPath, sizeof(fullPath)); 
                     readFile(path);
                     break;
                 case 4: // Write to a file
-                    printf("Enter directory name: ");
-                    scanf("%s", directory);
-                    printf("Enter the file name to write to: ");
-                    scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
-                    getchar(); // Consume newline
+                    getDirectoryName(fullPath, sizeof(fullPath)); 
                     printf("Enter the content to write: ");
                     fgets(content, sizeof(content), stdin);
                     strtok(content, "\n"); // Remove trailing newline
                     writeFile(path, content);
                     break;
                 case 5: // Change file permissions
-                    printf("Enter directory name: ");
-                    scanf("%s", directory);
-                    printf("Enter the file name: ");
-                    scanf("%s", path);
-                    snprintf(path, sizeof(path), "%s/%s", directory, filename);
+                    getDirectoryName(fullPath, sizeof(fullPath)); 
                     printf("Enter the new permissions (octal, e.g., 0644): ");
                     scanf("%o", &mode);
                     changeFilePerm(path, mode);
