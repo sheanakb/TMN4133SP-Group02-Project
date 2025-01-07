@@ -270,6 +270,7 @@ int main(int argc, char *argv[]) {
             scanf("%d", &file_choice);
             getchar(); // Consume newline
             switch (file_choice) {
+                case 1:
                  // Prompt for directory path and filename
                         printf("Enter directory path: ");
                         fgets(path, sizeof(path), stdin);
