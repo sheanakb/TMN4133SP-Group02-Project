@@ -1,0 +1,65 @@
+.TH SUPERCOMMAND 1 "January 2025" "Version 1.0" "User Commands"
+.SH NAME
+supercommand \- file, directory, and keylogger operations utility
+.SH SYNOPSIS
+.B supercommand
+[\fB\-m\fR \fIoperation mode filename\fR]
+.SH DESCRIPTION
+A utility program that provides file operations, directory operations, and keylogging functionality.
+.SH OPTIONS
+.TP
+.BR \-m " " \fIoperation\fR " " \fImode\fR " " \fIfilename\fR
+Execute specific operation with given mode and filename
+.PP
+Operations:
+.RS
+1 = File operations
+.br
+2 = Directory operations
+.br
+3 = Keylogger
+.RE
+.PP
+File Operation Modes (operation 1):
+.RS
+1 = Create/Open file
+.br
+2 = Change permissions
+.br
+3 = Read file
+.br
+4 = Write to file
+.br
+5 = Delete file
+.RE
+.PP
+Directory Operation Modes (operation 2):
+.RS
+1 = Create directory
+.br
+2 = Delete directory
+.br
+3 = Print current directory
+.br
+4 = List contents
+.RE
+.PP
+Keylogger Modes (operation 3):
+.RS
+0 = Start keylogger and log to the specified file
+.RE
+.SH EXAMPLES
+.TP
+Create directory:
+.B supercommand -m 2 1 ./new_folder
+.TP
+Delete file:
+.B supercommand -m 1 5 test.txt
+.TP
+Start keylogger and log keystrokes to a file:
+.B supercommand -m 3 0 keylog.txt
+.SH AUTHOR
+Written by TMN4133SP Group 2
+.SH BUGS
+Report bugs to your course instructor.
+
